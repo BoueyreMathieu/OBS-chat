@@ -1,0 +1,138 @@
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color-scheme: dark;
+  background: #0e0f13;
+  color: #f5f5f8;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+body { background: radial-gradient(circle at 12% -20%, #272039 0, #111218 36%, #0d0e12 72%); }
+button, textarea, a { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .38; }
+
+.app-shell {
+  height: 100vh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.topbar {
+  min-height: 68px;
+  padding: 12px 18px;
+  border-bottom: 1px solid #292c35;
+  background: rgba(16,17,22,.94);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  backdrop-filter: blur(12px);
+  z-index: 20;
+}
+
+h1 { margin: 0; font-size: 20px; }
+.subtitle { color: #9297a3; font-size: 12px; margin-top: 2px; }
+.top-actions { display: flex; align-items: center; gap: 10px; }
+.connection-state { color: #aeb3bf; font-size: 12px; }
+.connection-state.ok { color: #78dfa0; }
+.connection-state.off { color: #ef9b80; }
+.back-link {
+  color: #e8e9ef;
+  text-decoration: none;
+  border: 1px solid #353945;
+  border-radius: 8px;
+  padding: 7px 10px;
+  background: #1a1c23;
+}
+.back-link:hover { background: #232630; }
+
+.chat-log {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px 18px 24px;
+  scroll-behavior: smooth;
+  scrollbar-color: #454a58 #17191f;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.empty-state {
+  height: 100%;
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  color: #727783;
+  text-align: center;
+}
+
+
+/* Les cartes sont entièrement définies dans message-card.css. */
+
+.new-messages {
+  position: fixed;
+  left: 50%;
+  bottom: 112px;
+  transform: translateX(-50%);
+  z-index: 30;
+  border: 1px solid #3d4250;
+  border-radius: 999px;
+  background: #242731;
+  color: #fff;
+  padding: 8px 13px;
+  box-shadow: 0 6px 22px rgba(0,0,0,.35);
+}
+
+.composer {
+  border-top: 1px solid #2a2d36;
+  background: rgba(16,17,22,.97);
+  padding: 10px 14px 9px;
+  backdrop-filter: blur(14px);
+  z-index: 20;
+}
+.composer-main { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 10px; align-items: stretch; }
+#chatInput {
+  width: 100%;
+  resize: none;
+  min-height: 48px;
+  max-height: 110px;
+  border: 1px solid #383c48;
+  border-radius: 9px;
+  background: #111218;
+  color: #fff;
+  padding: 10px 12px;
+  outline: none;
+}
+#chatInput:focus { border-color: #646c82; box-shadow: 0 0 0 2px rgba(100,108,130,.15); }
+.send-controls { display:flex; gap:8px; align-items:stretch; }
+.send-targets { display:flex; gap:6px; align-items:stretch; }
+.target-check {
+  min-width:82px; display:flex; align-items:center; justify-content:center; gap:6px;
+  border-radius:8px; padding:0 10px; color:#fff; font-weight:800; user-select:none; cursor:pointer;
+  border:1px solid rgba(255,255,255,.10); opacity:.62; transition:opacity .15s,filter .15s,outline-color .15s;
+}
+.target-check input { margin:0; accent-color:#fff; }
+.target-check:has(input:checked) { opacity:1; outline:2px solid rgba(255,255,255,.22); outline-offset:-2px; }
+.target-check:has(input:disabled) { opacity:.28; cursor:not-allowed; }
+.target-check.twitch { background:#5d249d; }
+.target-check.youtube { background:#7d2825; }
+.target-check.both { background:#343967; }
+.send-now { min-width:88px; border:0; border-radius:8px; background:#2b7a4b; color:#fff; font-weight:800; padding:0 14px; }
+.send-now:disabled { opacity:.35; cursor:not-allowed; }
+.composer-meta { display: flex; justify-content: space-between; gap: 12px; color: #858a96; font-size: 11px; margin-top: 5px; }
+.composer-meta .success { color: #77dca0; }
+.composer-meta .error { color: #ed8b8b; }
+
+@media(max-width:720px) {
+  .topbar { padding: 10px 12px; }
+  .subtitle { display: none; }
+  .chat-log { padding: 12px 10px 18px; }
+  .composer-main { grid-template-columns: 1fr; }
+  .send-controls { width:100%; flex-direction:column; }
+  .send-targets { width:100%; }
+  .target-check { flex:1; min-height:38px; }
+  .send-now { min-height:38px; }
+  .new-messages { bottom: 158px; }
+}

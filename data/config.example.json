@@ -1,0 +1,31 @@
+{
+  "twitch": {
+    "enabled": false,
+    "clientId": "",
+    "clientSecret": "",
+    "channelLogin": "",
+    "accessToken": "",
+    "refreshToken": ""
+  },
+  "youtube": {
+    "enabled": false,
+    "apiKey": "",
+    "videoId": "",
+    "oauthClientId": "",
+    "oauthClientSecret": "",
+    "oauthAccessToken": "",
+    "oauthRefreshToken": "",
+    "oauthExpiresAt": 0
+  },
+  "overlay": {
+    "eventAnimation": {
+      "fps": 60,
+      "trailLength": 350,
+      "orbitDuration": 4700,
+      "orbSize": 7.5,
+      "glowIntensity": 1.1,
+      "eventDuration": 25000
+    },
+    "eventAnimationRevision": 2
+  }
+}

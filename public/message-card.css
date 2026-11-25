@@ -1,0 +1,187 @@
+/*
+  V2.5.8 — composant visuel UNIQUE pour /feed et /chat.
+  Toute différence de page doit rester dans overlay.css ou chat-console.css.
+  La carte, ses badges et ses events ne doivent plus être redéfinis ailleurs.
+*/
+
+.message-card {
+  --platform-rgb: 120, 80, 180;
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  max-width: 980px;
+  margin: 0;
+  padding: 9px 12px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px;
+  background: linear-gradient(90deg, rgba(var(--platform-rgb), .09), rgba(19,21,28,.88) 38%);
+  box-shadow: 0 3px 12px rgba(0,0,0,.18);
+  color: #f7f7fb;
+  font-size: 15px;
+  line-height: 1.38;
+  overflow: visible;
+}
+
+.message-card[data-platform="twitch"] { --platform-rgb: 145, 70, 255; }
+.message-card[data-platform="youtube"] { --platform-rgb: 255, 48, 48; }
+.message-card.no-tint:not(.event) { background: rgba(19,21,28,.88); }
+
+.message-card.event {
+  --event-rgb: var(--platform-rgb);
+  --event-rail-alpha: .64;
+  border-color: transparent;
+  background:
+    radial-gradient(circle at 18% 50%, rgba(var(--event-rgb), .10), transparent 30%),
+    linear-gradient(90deg, rgba(var(--event-rgb), .10), rgba(7,8,12,.96) 40%, rgba(6,7,11,.98));
+  box-shadow: 0 6px 22px rgba(0,0,0,.36), inset 0 0 18px rgba(var(--event-rgb), .05);
+  overflow: visible;
+}
+
+.message-card.event::before,
+.message-card.event::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.message-card.event::before {
+  inset: -1px;
+  border-radius: inherit;
+  border: 1.2px solid rgba(var(--event-rgb), var(--event-rail-alpha));
+  box-shadow: 0 0 5px rgba(var(--event-rgb), .40), 0 0 12px rgba(var(--event-rgb), .15);
+}
+
+.message-card.event::after {
+  inset: 4px;
+  border-radius: 6px;
+  border: 1px solid rgba(var(--event-rgb), .24);
+}
+
+.message-card.event[data-event-style$="prime"] { --event-rgb: 46,210,222; --event-rail-alpha: .56; }
+.message-card.event[data-event-style$="tier1"] { --event-rgb: 161,92,255; --event-rail-alpha: .64; }
+.message-card.event[data-event-style$="tier2"] { --event-rgb: 70,139,255; --event-rail-alpha: .70; }
+.message-card.event[data-event-style$="tier3"] { --event-rgb: 246,181,55; --event-rail-alpha: .80; }
+.message-card.event[data-event-style^="upgrade-"] { --event-rgb:255,112,181; --event-rail-alpha:.68; }
+.message-card.event[data-event-style="pay-it-forward"] { --event-rgb:255,126,92; --event-rail-alpha:.68; }
+.message-card.event[data-event-style="event-generic"] { --event-rgb:190,132,255; --event-rail-alpha:.64; }
+.message-card.event[data-event-style="raid"] { --event-rgb:255,92,156; --event-rail-alpha:.80; }
+.message-card.event[data-event-style^="membership"] { --event-rgb:48,210,130; --event-rail-alpha:.70; }
+.message-card.event[data-event-style^="youtube-gift"] { --event-rgb:73,202,255; --event-rail-alpha:.74; }
+.message-card.event[data-event-style^="superchat-tier"] { --event-rgb:255,95,70; --event-rail-alpha:.78; }
+.message-card.event[data-event-style^="supersticker-tier"] { --event-rgb:255,169,47; --event-rail-alpha:.78; }
+.message-card.event[data-event-style^="community-gift-"] {
+  background:
+    radial-gradient(circle at 18% 50%,rgba(var(--event-rgb),.14),transparent 31%),
+    linear-gradient(90deg,rgba(var(--event-rgb),.14),rgba(7,8,12,.965) 42%,rgba(6,7,11,.985));
+}
+
+/* Rewards : event spécial mais volontairement statique. */
+.message-card.event[data-event-category="reward"] {
+  --event-rgb:217,88,255;
+  --event-rail-alpha:.58;
+  background:
+    radial-gradient(circle at 16% 50%,rgba(var(--event-rgb),.14),transparent 31%),
+    linear-gradient(90deg,rgba(var(--event-rgb),.13),rgba(8,9,13,.965) 42%,rgba(6,7,11,.985));
+}
+
+/* Bits : halo pulsant, sans orbes. */
+.message-card.event[data-event-category="bits"] { --event-rail-alpha:.74; }
+.message-card.event[data-event-style="bits-tier1"] { --event-rgb:151,151,151; }
+.message-card.event[data-event-style="bits-tier100"] { --event-rgb:156,62,232; }
+.message-card.event[data-event-style="bits-tier1000"] { --event-rgb:29,178,166; }
+.message-card.event[data-event-style="bits-tier5000"] { --event-rgb:0,153,254; }
+.message-card.event[data-event-style="bits-tier10000"] { --event-rgb:244,48,33; }
+.message-card.event[data-event-style="bits-tier100000"] { --event-rgb:243,165,40; }
+.message-card.event[data-event-category="bits"].bits-pulse-active::before {
+  animation: bits-halo-pulse 1.75s ease-in-out infinite;
+  will-change: box-shadow;
+}
+
+@keyframes bits-halo-pulse {
+  0%,100% {
+    box-shadow:0 0 5px rgba(var(--event-rgb),.36),0 0 12px rgba(var(--event-rgb),.16),0 0 22px rgba(var(--event-rgb),.08);
+  }
+  50% {
+    box-shadow:0 0 9px rgba(var(--event-rgb),.78),0 0 22px rgba(var(--event-rgb),.42),0 0 42px rgba(var(--event-rgb),.22);
+  }
+}
+
+/* Premier message : fond distinct, sans animation supplémentaire. */
+.message-card.first-message-stream:not(.event) {
+  border-color:rgba(70,145,255,.42);
+  background:linear-gradient(90deg,rgba(42,112,226,.34),rgba(12,18,30,.94) 46%,rgba(10,13,20,.96));
+  box-shadow:0 5px 18px rgba(0,0,0,.24),inset 4px 0 0 rgba(76,150,255,.78),inset 0 0 22px rgba(50,130,255,.07);
+}
+.message-card.first-message-ever:not(.event) {
+  border-color:rgba(38,220,160,.48);
+  background:linear-gradient(90deg,rgba(24,170,126,.38),rgba(9,24,23,.95) 46%,rgba(8,14,17,.97));
+  box-shadow:0 5px 18px rgba(0,0,0,.24),inset 4px 0 0 rgba(42,224,166,.88),inset 0 0 24px rgba(30,205,150,.09);
+}
+.message-card.first-message-stream.event {
+  box-shadow:0 6px 22px rgba(0,0,0,.36),inset 4px 0 0 rgba(76,150,255,.68);
+}
+.message-card.first-message-ever.event {
+  box-shadow:0 6px 22px rgba(0,0,0,.36),inset 4px 0 0 rgba(42,224,166,.82);
+}
+
+.event-glow-canvas {
+  position: absolute;
+  pointer-events: none;
+  z-index: 2;
+  overflow: visible;
+}
+
+.message-card-line {
+  display: block;
+  position: relative;
+  z-index: 3;
+  overflow-wrap: anywhere;
+}
+
+.message-time {
+  color: #6f7480;
+  font-size: 11px;
+  margin-right: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.platform-badge,
+.viewer-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  margin-right: 5px;
+  vertical-align: 1px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 800;
+  text-shadow: none;
+}
+
+.platform-badge { width: 23px; color: #fff; }
+.platform-badge.twitch { background: #9146ff; }
+.platform-badge.youtube { background: #ff0033; }
+.platform-badge .platform-logo { width: 14px; height: 14px; display:block; object-fit:contain; }
+.platform-badge .yt-play {
+  width:0; height:0;
+  border-top:4px solid transparent;
+  border-bottom:4px solid transparent;
+  border-left:7px solid #fff;
+  margin-left:2px;
+}
+
+.viewer-badge {
+  min-width: 25px;
+  padding: 0 4px;
+  background: #292c35;
+  color: #eee;
+}
+.viewer-badge.has-image { min-width:0; width:20px; padding:0; background:transparent; border:0; }
+.viewer-badge.has-image img { width:20px; height:20px; display:block; object-fit:contain; }
+
+.author { font-weight:800; }
+.separator { color:#9ca0aa; font-weight:700; }
+.content { color:#f4f4f7; }
+.emote { height:1.35em; vertical-align:-.28em; margin:0 2px; }

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OBS Chat — Console live</title>
+  <link rel="stylesheet" href="/chat-console.css" />
+  <link rel="stylesheet" href="/message-card.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <h1>Chat live</h1>
+        <div class="subtitle">Historique sans limite pendant la session du serveur</div>
+      </div>
+      <div class="top-actions">
+        <div id="connectionState" class="connection-state">Connexion…</div>
+        <a class="back-link" href="/">Dashboard</a>
+      </div>
+    </header>
+
+    <main id="chatLog" class="chat-log" aria-live="polite">
+      <div id="emptyState" class="empty-state">En attente de messages Twitch / YouTube…</div>
+    </main>
+
+    <button id="newMessages" class="new-messages" hidden>Voir les nouveaux messages</button>
+
+    <footer class="composer">
+      <div class="composer-main">
+        <textarea id="chatInput" maxlength="500" rows="2" placeholder="Écrire un message…  Entrée = envoyer, Maj+Entrée = nouvelle ligne"></textarea>
+        <div class="send-controls">
+          <div class="send-targets" aria-label="Plateformes d’envoi">
+            <label class="target-check twitch"><input id="sendTwitch" type="checkbox"><span>Twitch</span></label>
+            <label class="target-check youtube"><input id="sendYouTube" type="checkbox"><span>YouTube</span></label>
+            <label class="target-check both"><input id="sendBoth" type="checkbox"><span>Les deux</span></label>
+          </div>
+          <button id="sendNow" class="send-now">Envoyer</button>
+        </div>
+      </div>
+      <div class="composer-meta">
+        <span id="sendStatus">Vérification des permissions d’envoi…</span>
+        <span id="charCount">0 / 500</span>
+      </div>
+    </footer>
+  </div>
+  <script src="/event-glow-lite.js"></script>
+<script type="module" src="/chat-console.js"></script>
+</body>
+</html>

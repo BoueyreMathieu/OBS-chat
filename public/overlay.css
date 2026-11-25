@@ -1,0 +1,65 @@
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin:0; width:100%; height:100%; overflow:hidden; background:transparent; }
+body { padding:40px; }
+
+#feed {
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  align-items:flex-start;
+  gap:8px;
+  overflow:visible;
+}
+
+/*
+  Le feed n'anime plus la carte elle-même.
+  La MessageCard reste strictement la même que dans /chat ; seul ce wrapper
+  gère l'entrée, la sortie, la durée et le repli du feed OBS.
+*/
+.feed-message-slot {
+  position:relative;
+  left:0;
+  width:100%;
+  max-width:980px;
+  flex:0 0 auto;
+  overflow:visible;
+  animation:feed-message-in 260ms cubic-bezier(.2,.8,.25,1) both;
+}
+
+.feed-message-slot > .message-card {
+  width:100%;
+  max-width:none;
+}
+
+.feed-message-slot.leaving {
+  pointer-events:none;
+  animation:feed-message-out 320ms cubic-bezier(.4,0,.2,1) forwards;
+  will-change:opacity,left,max-height,margin-bottom;
+}
+
+@keyframes feed-message-in {
+  from { opacity:0; left:-16px; }
+  to { opacity:1; left:0; }
+}
+
+@keyframes feed-message-out {
+  from {
+    opacity:1;
+    left:0;
+    max-height:var(--message-exit-height,220px);
+    margin-bottom:0;
+  }
+  to {
+    opacity:0;
+    left:-18px;
+    max-height:0;
+    margin-bottom:-8px;
+  }
+}

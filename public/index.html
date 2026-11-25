@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OBS Chat Prototype</title>
+  <style>
+    *{box-sizing:border-box}
+    :root{color-scheme:dark;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+    body{margin:0;background:#101116;color:#f2f2f5;font:13px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif}
+    main{max-width:1580px;margin:auto;padding:14px}
+    .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+    h1{margin:0 0 2px;font-size:23px;line-height:1.1}
+    h2{font-size:16px;margin:0 0 9px}
+    h3{font-size:13px;margin:12px 0 6px}
+    p{margin:7px 0}.muted{color:#9ca0aa}.small{font-size:11.5px}
+    .dashboard-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:start}
+    .card{background:#191b22;border:1px solid #2a2d36;border-radius:10px;padding:11px;min-width:0}
+    .stack{display:grid;gap:7px}.field{display:grid;gap:3px}.field label{font-size:11.5px;color:#b8bbc3}
+    .field input[type=text],.field input[type=password],.field select{width:100%;height:32px;background:#111218;color:white;border:1px solid #343844;border-radius:6px;padding:6px 9px;font:inherit}
+    .check{display:flex;gap:6px;align-items:center}
+    button,a.button{font:inherit;cursor:pointer;border:0;border-radius:6px;padding:6px 9px;font-weight:700;background:#2b2f3a;color:#fff;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-height:30px}
+    button:hover:not(:disabled),a.button:hover{filter:brightness(1.15)}button:disabled{opacity:.38;cursor:not-allowed}
+    .twitch{background:#9146ff!important}.youtube{background:#e62117!important}.both{background:#4754b8!important}.good{background:#287d4c!important}.danger{background:#763535!important}
+    .status{display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:7px;background:#111218;border:1px solid #2d3039;min-height:32px}
+    .dot{width:8px;height:8px;border-radius:50%;background:#707680;flex:none}.dot.connected{background:#3cc96b}.dot.connecting{background:#e5b84a}.dot.error{background:#ee5b5b}.dot.needs-auth,.dot.needs-config{background:#e58d4a}.dot.disabled{background:#626772}
+    code{display:block;white-space:pre-wrap;word-break:break-all;background:#111218;border:1px solid #2c2f38;border-radius:6px;padding:6px 8px;color:#c9d4ff;font-size:11px;line-height:1.3}
+    .notice{padding:7px 8px;border-radius:7px;background:#151b26;border:1px solid #2d3a53;color:#cedcff;font-size:11.5px}.warn{background:#211b13;border-color:#4a3821;color:#f0d6a6}.success{background:#132219;border-color:#27543a;color:#bde8cc}.errorbox{background:#271616;border-color:#5f2c2c;color:#f1b9b9}
+    .actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.actions>*{flex:0 1 auto}.send-state{margin-top:6px;font-size:11.5px}.send-state strong{color:#fff}.divider{height:1px;background:#2a2d36;margin:9px 0}
+    .preview{width:100%;height:242px;border:1px solid #2c2f38;border-radius:7px;background:repeating-conic-gradient(#1a1c22 0 25%,#14161b 0 50%) 50%/20px 20px}
+    .compact-note{margin-top:7px}.quick-actions{display:flex;gap:6px;flex-wrap:wrap}.quick-actions .button{padding:6px 9px}
+    .span-2{grid-column:span 2}.span-3{grid-column:1/-1}
+    details.card>summary{cursor:pointer;font-weight:750;font-size:14px}.info-columns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:9px}
+    #flash:empty{display:none}#flash{margin-bottom:10px}
+    .range-row{display:grid;grid-template-columns:150px minmax(120px,1fr) 72px;gap:8px;align-items:center;margin:6px 0}
+    .range-row label{font-size:11.5px;color:#b8bbc3}.range-row input[type=range]{width:100%}.range-value{text-align:right;color:#dfe3ef;font-variant-numeric:tabular-nums;font-size:11.5px}
+    .anim-preview-wrap{margin-top:8px}.anim-preview{width:100%;height:155px;border:1px solid #2c2f38;border-radius:7px;background:#0b0c10}.anim-preview[hidden]{display:none}
+    .filter-examples{display:grid;gap:5px;margin-top:6px}
+    .dashboard-send-targets{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.dashboard-target{display:flex;align-items:center;gap:5px;border-radius:6px;padding:6px 9px;font-weight:700;color:#fff;opacity:.62;cursor:pointer;user-select:none}.dashboard-target:has(input:checked){opacity:1;outline:2px solid rgba(255,255,255,.22);outline-offset:-2px}.dashboard-target:has(input:disabled){opacity:.28;cursor:not-allowed}.dashboard-target input{margin:0;accent-color:#fff}.dashboard-target.twitch{background:#5d249d}.dashboard-target.youtube{background:#7d2825}.dashboard-target.both{background:#343967}
+
+    @media(max-width:1150px){.dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.span-3{grid-column:1/-1}.span-2{grid-column:span 2}}
+    @media(max-width:760px){main{padding:9px}.dashboard-grid{grid-template-columns:1fr}.span-2,.span-3{grid-column:auto}.topbar{display:block}.info-columns{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main>
+  <div class="topbar">
+    <div>
+      <h1>OBS Chat — Prototype <span id="appVersion">…</span></h1>
+      <div class="muted small">Dashboard compact • Rewards statiques • Bits pulsants • filtres URL • animation configurable.</div>
+    </div>
+    <div class="quick-actions"><a class="button both" href="/chat" target="_blank" rel="noopener">Ouvrir la console de chat</a></div>
+  </div>
+  <div id="flash"></div>
+
+  <div class="dashboard-grid">
+    <section class="card">
+      <h2>Twitch réel</h2>
+      <div id="twitchStatus" class="status"><span class="dot"></span><span>Chargement…</span></div>
+      <div class="stack" style="margin-top:8px">
+        <label class="check"><input id="twitchEnabled" type="checkbox"> Activer Twitch</label>
+        <div class="field"><label>Client ID</label><input id="twitchClientId" type="text" autocomplete="off"></div>
+        <div class="field"><label>Client Secret</label><input id="twitchClientSecret" type="password" autocomplete="new-password" placeholder="laisser vide pour conserver le secret"></div>
+        <div class="field"><label>Chaîne Twitch</label><input id="twitchChannel" type="text" placeholder="ton_login (vide = compte connecté)"></div>
+      </div>
+      <div class="actions">
+        <button id="saveTwitch" class="good">Enregistrer</button>
+        <a id="connectTwitch" class="button twitch" href="/auth/twitch/start">Connecter / MAJ</a>
+        <button id="disconnectTwitch" class="danger">Déconnecter</button>
+      </div>
+      <div id="twitchSendAuth" class="send-state muted">Envoi chat : vérification…</div>
+      <div id="twitchRewardAuth" class="send-state muted">Rewards : vérification…</div>
+      <details class="compact-note"><summary class="small muted">OAuth / Redirect URI</summary><code id="twitchRedirect"></code><p class="small muted">Lecture + envoi + rewards nécessitent désormais user:read:chat, user:write:chat et channel:read:redemptions. Après mise à jour, clique une fois sur « Connecter / MAJ ».</p></details>
+    </section>
+
+    <section class="card">
+      <h2>YouTube réel</h2>
+      <div id="youtubeStatus" class="status"><span class="dot"></span><span>Chargement…</span></div>
+      <div class="stack" style="margin-top:8px">
+        <label class="check"><input id="youtubeEnabled" type="checkbox"> Activer YouTube</label>
+        <div class="field"><label>Clé API YouTube Data API v3</label><input id="youtubeApiKey" type="password" autocomplete="new-password" placeholder="laisser vide pour conserver la clé"></div>
+        <div class="field"><label>URL ou ID du live</label><input id="youtubeVideoId" type="text" placeholder="https://youtube.com/watch?v=…"></div>
+      </div>
+      <details class="compact-note"><summary class="small muted">OAuth YouTube pour l’envoi</summary>
+        <div class="stack" style="margin-top:7px">
+          <div class="field"><label>OAuth Client ID</label><input id="youtubeOauthClientId" type="text" autocomplete="off" placeholder="…apps.googleusercontent.com"></div>
+          <div class="field"><label>OAuth Client Secret</label><input id="youtubeOauthClientSecret" type="password" autocomplete="new-password" placeholder="laisser vide pour conserver le secret"></div>
+          <div><span class="small muted">Redirect URI</span><code id="youtubeRedirect"></code></div>
+        </div>
+      </details>
+      <div class="actions">
+        <button id="saveYouTube" class="good">Enregistrer / reconnecter</button>
+        <a id="connectYouTube" class="button youtube" href="/auth/youtube/start">Connecter l’envoi</a>
+        <button id="disconnectYouTube" class="danger">Déconnecter</button>
+      </div>
+      <div id="youtubeSendAuth" class="send-state muted">Envoi chat : vérification…</div>
+    </section>
+
+    <section class="card">
+      <h2>Envoyer un vrai message</h2>
+      <div class="field"><label>Message (500 caractères max)</label><input id="outgoingText" maxlength="500" type="text" placeholder="Message à envoyer dans le chat réel"></div>
+      <div class="dashboard-send-targets">
+        <label class="dashboard-target twitch"><input id="sendTwitch" type="checkbox"><span>Twitch</span></label>
+        <label class="dashboard-target youtube"><input id="sendYouTube" type="checkbox"><span>YouTube</span></label>
+        <label class="dashboard-target both"><input id="sendBoth" type="checkbox"><span>Les deux</span></label>
+        <button id="sendNow" class="good">Envoyer</button>
+      </div>
+      <p class="small muted">Entrée = envoyer vers les plateformes cochées.</p>
+      <p class="small muted">Le message revient ensuite par le flux réel, sans injection artificielle dans l’overlay.</p>
+      <div class="divider"></div>
+      <h2>URLs rapides</h2>
+      <div class="small muted">Feed normal</div><code id="normalUrl"></code>
+      <div class="small muted" style="margin-top:5px">Persistant</div><code id="persistUrl"></code>
+      <div class="small muted" style="margin-top:5px">Console</div><code id="chatConsoleUrl"></code>
+    </section>
+
+    <section class="card">
+      <h2>Test sans live</h2>
+      <div class="field"><label>Message personnalisé (facultatif)</label><input id="text" type="text" placeholder="Ton message de test"></div>
+      <div class="actions">
+        <button class="twitch" data-platform="twitch">Faux Twitch</button>
+        <button class="youtube" data-platform="youtube">Faux YouTube</button>
+        <button id="random">Aléatoire</button>
+        <button id="startAuto" class="good">Auto</button>
+        <button id="stopAuto">Stop</button>
+      </div>
+      <div class="actions">
+        <button id="fakeFirstStream" style="background:#2e68ad">Faux 1er message du live</button>
+        <button id="fakeFirstEver" style="background:#168767">Faux 1er message chaîne</button>
+      </div>
+      <div class="divider"></div>
+      <div class="field"><label>Style d’événement Twitch</label><select id="eventStyle">
+        <option value="sub-prime">Sub Prime</option><option value="sub-tier1">Sub Tier 1</option><option value="sub-tier2">Sub Tier 2</option><option value="sub-tier3">Sub Tier 3</option>
+        <option value="resub-tier1" selected>Resub Tier 1</option><option value="resub-tier2">Resub Tier 2</option><option value="resub-tier3">Resub Tier 3</option>
+        <option value="community-gift-tier1">Community Gift Tier 1</option><option value="community-gift-tier2">Community Gift Tier 2</option><option value="community-gift-tier3">Community Gift Tier 3</option>
+      </select></div>
+      <div class="actions"><button id="fakeEvent" class="twitch">Afficher l’événement</button></div>
+      <div class="actions"><button id="fakeReward" class="both">Faux reward Channel Points</button></div>
+      <div class="field" style="margin-top:7px"><label>Bits de test</label><select id="fakeBitsAmount">
+        <option value="100">100 Bits — violet</option><option value="1000" selected>1 000 Bits — turquoise</option><option value="5000">5 000 Bits — bleu</option><option value="10000">10 000 Bits — rouge</option><option value="100000">100 000 Bits — or</option>
+      </select></div>
+      <div class="actions"><button id="fakeBits" style="background:#1db2a6">Faux message avec Bits</button></div>
+    </section>
+
+
+
+
+
+    <section class="card span-2">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <h2 style="margin-bottom:0">Aperçu overlay</h2>
+        <label class="check small"><input id="overlayPreviewAnimations" type="checkbox"> Animer les events dans cet aperçu</label>
+      </div>
+      <p class="small muted" style="margin:6px 0 8px">Désactivé par défaut pour économiser les ressources. Le bouton n’affecte que cet aperçu.</p>
+      <iframe id="preview" class="preview" src="/overlay/feed?limit=5&animations=0"></iframe>
+    </section>
+
+    <details class="card span-3" id="animationCard">
+      <summary>Animation des événements</summary>
+      <div class="stack" style="margin-top:8px">
+        <label class="check"><input id="animationPreviewEnabled" type="checkbox"> Activer l’aperçu animé (désactivé par défaut)</label>
+        <div class="range-row"><label for="animFps">FPS</label><input id="animFps" type="range" min="12" max="120" step="1"><span id="animFpsValue" class="range-value"></span></div>
+        <div class="range-row"><label for="animTrail">Longueur traînée</label><input id="animTrail" type="range" min="80" max="700" step="10"><span id="animTrailValue" class="range-value"></span></div>
+        <div class="range-row"><label for="animOrbit">Durée d’un tour</label><input id="animOrbit" type="range" min="1500" max="12000" step="100"><span id="animOrbitValue" class="range-value"></span></div>
+        <div class="range-row"><label for="animOrb">Taille orbe</label><input id="animOrb" type="range" min="2" max="16" step="0.5"><span id="animOrbValue" class="range-value"></span></div>
+        <div class="range-row"><label for="animGlow">Intensité glow</label><input id="animGlow" type="range" min="35" max="250" step="5"><span id="animGlowValue" class="range-value"></span></div>
+        <div class="range-row"><label for="animDuration">Durée event</label><input id="animDuration" type="range" min="3000" max="60000" step="1000"><span id="animDurationValue" class="range-value"></span></div>
+        <div class="actions">
+          <button id="restartAnimationPreview">Relancer l’aperçu</button>
+          <button id="saveAnimation" class="good">Appliquer et sauvegarder</button>
+          <button id="resetAnimation">Valeurs par défaut</button>
+        </div>
+        <div class="anim-preview-wrap"><iframe id="animationPreview" class="anim-preview" hidden></iframe></div>
+        <p class="small muted">Les sliders modifient seulement l’aperçu tant que tu n’as pas cliqué sur « Appliquer et sauvegarder ». Les paramètres URL peuvent ensuite surcharger ces valeurs pour une Browser Source précise.</p>
+      </div>
+    </details>
+
+    <details class="card span-3">
+      <summary>Styles & paramètres URL</summary>
+      <div class="info-columns">
+        <div>
+          <h3>Events <span id="eventsVersion">…</span></h3>
+          <p class="small muted">Les subs/resubs/gifts utilisent le moteur visuel harmonisé sur celui de /chat. Le moteur d’animation est commun à /feed et /chat et utilise exactement la même configuration runtime. Les rewards restent statiques. Les Bits utilisent un halo coloré pulsant sans orbes. Profil visuel validé par défaut : 60 FPS, traînée 350 px, orbe 7,5 px, glow 110 %, DPR 1×, halos pré-rendus, puis arrêt total après 25 secondes.</p>
+          <p class="small muted">La durée des events est fixe : <strong>25 secondes par défaut</strong>, indépendamment de la longueur du texte. Une fois ce délai atteint, le contour animé s’éteint pour éviter la fatigue visuelle, tout en laissant la carte statique si la vue est persistante.</p>
+        </div>
+        <div>
+          <h3>Paramètres</h3>
+          <code>?persist=1          aucun timer de disparition
+?limit=8            messages visibles max
+?base=2500          base message normal
+?perWord=260        ms par mot normal
+?minDuration=4000
+?maxDuration=12000
+?eventDuration=25000 durée fixe d’un event
+?eventFps=60         FPS animation
+?trailLength=350     longueur de traînée
+?orbitDuration=4700  durée d’un tour en ms
+?orbSize=7.5         taille de l’orbe
+?glowIntensity=1.10   intensité du glow
+?platform=twitch     filtre plateforme
+?events=chat,sub     filtre types
+?tint=0              désactive la teinte normale
+?platformBadge=0     masque le badge plateforme
+?animations=0        désactive toutes les animations</code>
+          <div class="filter-examples">
+            <div class="small muted">Exemples filtres</div>
+            <code>/overlay/feed?platform=twitch</code>
+            <code>/overlay/feed?platform=youtube&events=chat</code>
+            <code>/overlay/feed?events=sub,resub,gift,reward</code>
+            <code>/overlay/feed?events=reward</code>
+            <code>/overlay/feed?events=bits</code>
+            <code>/overlay/feed?animations=0</code>
+          </div>
+          <div class="small muted" style="margin-top:5px">Exemple réglé</div><code id="customUrl"></code>
+        </div>
+      </div>
+    </details>
+  </div>
+</main>
+<script type="module" src="/dashboard.js"></script>
+</body>
+</html>
